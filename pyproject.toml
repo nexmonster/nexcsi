@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "nexcsi"
+version = "0.1.0"
+description = "A fast and simple decoder for Nexmon_CSI"
+authors = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
+maintainers = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
+repository = "https://github.com/nexmonster/nexcsi.git"
+keywords = ["Nexmon", "CSI", "Nexmon_CSI", "WiFi"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+numpy = "^1.23.3"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.8.0"
+mypy = "^0.971"
+pylama = "^8.4.1"
+grip = "^4.6.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
