@@ -1,8 +1,9 @@
 rpi = ["rpi", "raspberrypi", "rpi4", "rpi3", "bcm43455c0", "bcm43455"]
+nexus5 = ["nexus5", "bcm4339"]
 
 
 def decoder(key):
-    if key in rpi:
+    if key in rpi or nexus5:
         from nexcsi import interleaved
         return interleaved
     else:
