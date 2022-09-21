@@ -85,7 +85,7 @@ def __find_nsamples_max(pcap_filesize, nsub):
     return nsamples_max
 
 
-def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None, fftshift=True):
+def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
     """
     Reads CSI samples from
     a pcap file. A SampleSet
@@ -168,8 +168,3 @@ def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None, fftshift=True):
     )  # ~ 1.8 s
 
     return samples
-
-    # csi = (samples["csi"].astype(np.float32).view(np.complex64),)  # ~ 3.55 s
-
-    # if fftshift:
-    #     csi = np.fft.fftshift(csi, axes=(1,))  # ~8.5
