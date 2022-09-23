@@ -6,6 +6,7 @@ authors = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
 maintainers = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
 repository = "https://github.com/nexmonster/nexcsi.git"
 keywords = ["Nexmon", "CSI", "Nexmon_CSI", "WiFi"]
+readme = "README.md"
 license = "MIT"
 
 [tool.poetry.dependencies]
