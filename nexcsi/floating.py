@@ -28,6 +28,7 @@ __all__ = ["read_pcap"]
 
 import os
 import numpy as np
+from nexcsi._decoder import nexus6p, rtac86u
 
 
 def __find_bandwidth(incl_len):
@@ -85,21 +86,21 @@ def __find_nsamples_max(pcap_filesize, nsub):
     return nsamples_max
 
 
-def unpack(csi, chip='bcm4366c0', fftshift=True):
-    if chip == 'bcm4366c0':
+def unpack(csi, device, fftshift=True):
+    if device in rtac86u:
         nman = 12
         nexp = 6
-    elif chip == 'bcm4358':
+    elif device in nexus6p:
         nman = 9
         nexp = 5
     else:
         raise ValueError(
-            f"Chip '{chip}' seems to be an unsupported format. " +
+            f"Device '{device}' seems to be an unsupported format. " +
             "Please create a new issue at " +
             "https://github.com/nexmonster/nexcsi/issues " +
             "if you think this is an bug."
         )
-    
+
     csi_flat = csi.flatten()
 
     mask_iq = (1 << (nman - 1)) - 1

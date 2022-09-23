@@ -1,4 +1,4 @@
-from nexcsi.decoder import decoder
+from nexcsi._decoder import decoder
 
 # Indexes of Null and Pilot OFDM subcarriers
 # https://www.oreilly.com/library/view/80211ac-a-survival/9781449357702/ch02.html

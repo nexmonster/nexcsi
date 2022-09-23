@@ -85,7 +85,7 @@ def __find_nsamples_max(pcap_filesize, nsub):
     return nsamples_max
 
 
-def unpack(csi, chip = 'bcm43455c0', fftshift=True):
+def unpack(csi, device = 'bcm43455c0', fftshift=True):
     unpacked = csi.astype(np.float32).view(np.complex64)
 
     if fftshift:
