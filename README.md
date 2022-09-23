@@ -9,14 +9,15 @@ pip install nexcsi
 # Usage
 
 ``` python
-
 from nexcsi import decoder
 
-samples = decoder('bcm43455c0').read_pcap('csirecording.pcap')
+device = "raspberrypi" # nexus5, nexus6p, rtac86u
+
+samples = decoder(device).read_pcap('pcap/output10k.pcap')
 
 print(samples['rssi']) # [-75 -77 -77 ... -77 -76 -76]
 print(samples['fctl']) # [128 148 148 ... 148 148 148]
-print(samples['csi'])  # [[ 19489  0  -19200  -96 -42]]
+print(samples['csi'])  # [[ 19489  0  -19200  -96 -42 ...
 
 # samples is a Numpy Structured Array
 print(samples.dtype)
@@ -28,8 +29,5 @@ print(samples.dtype)
 # ]
 
 # Accessing CSI as type complex64
-csi = samples["csi"].astype(np.float32).view(np.complex64)
-
-# fftshift CSI to have null subcarrier at the center
-csi = np.fft.fftshift(csi, axes=(1,))
+csi = decoder(device).unpack(samples['csi'])
 ```
