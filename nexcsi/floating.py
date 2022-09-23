@@ -85,6 +85,67 @@ def __find_nsamples_max(pcap_filesize, nsub):
     return nsamples_max
 
 
+def unpack(csi, chip='bcm4366c0', fftshift=True):
+    if chip == 'bcm4366c0':
+        nman = 12
+        nexp = 6
+    elif chip == 'bcm4358':
+        nman = 9
+        nexp = 5
+    else:
+        raise ValueError(
+            f"Chip '{chip}' seems to be an unsupported format. " +
+            "Please create a new issue at " +
+            "https://github.com/nexmonster/nexcsi/issues " +
+            "if you think this is an bug."
+        )
+    
+    csi_flat = csi.flatten()
+
+    mask_iq = (1 << (nman - 1)) - 1
+    mask_ex = (1 << (nexp - 1)) - 1
+
+    mask_sign_i = (1 << (nexp + 2 * nman - 1))
+    mask_sign_q = (1 << (nexp + 1 * nman - 1))
+    # mask_sign_e = (1 << (nexp + 0 * nman - 1))
+
+    # print(np.binary_repr(mask_sign_i, width=32))
+    # print(np.binary_repr(mask_iq << nexp + nman, width=32))
+    # print(np.binary_repr(mask_sign_q, width=32))
+    # print(np.binary_repr(mask_iq << nexp, width=32))
+    # print(np.binary_repr(mask_sign_e, width=32))
+    # print(np.binary_repr(mask_ex, width=32))
+
+    value_i = np.bitwise_and(csi_flat, mask_iq << nexp + nman).astype(np.int64)
+    value_q = np.bitwise_and(csi_flat, mask_iq << nexp).astype(np.int64)
+    value_e = np.bitwise_and(csi_flat, mask_ex).astype(np.int64)
+
+    value_i = np.right_shift(value_i, nexp + nman)
+    value_q = np.right_shift(value_q, nexp)
+
+    sign_i = np.bitwise_and(csi_flat, mask_sign_i).astype(np.int64)
+    sign_q = np.bitwise_and(csi_flat, mask_sign_q).astype(np.int64)
+    # sign_e = np.bitwise_and(csi_flat, mask_sign_e).astype(np.int64)
+
+    value_i[sign_i != 0] *= -1
+    value_q[sign_q != 0] *= -1
+
+    value_e += 10
+    value_e = np.power(2, value_e)
+
+    value_i *= value_e
+    value_q *= value_e
+
+    unpacked = np.stack((value_i, value_q), axis=1).flatten().astype(np.float32).view(np.complex64)
+
+    unpacked = unpacked.reshape(csi.shape)
+
+    if fftshift:
+        unpacked = np.fft.fftshift(unpacked, axes=(1,))
+
+    return unpacked
+
+
 def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
     """
     Reads CSI samples from
