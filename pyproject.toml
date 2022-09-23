@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nexcsi"
-version = "0.1.0"
+version = "0.2.0"
 description = "A fast and simple decoder for Nexmon_CSI"
 authors = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
 maintainers = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
