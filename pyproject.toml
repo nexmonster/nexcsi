@@ -19,6 +19,7 @@ black = "^22.8.0"
 mypy = "^0.971"
 pylama = "^8.4.1"
 grip = "^4.6.1"
+pytest = "^7.1.3"
 
 [build-system]
 requires = ["poetry-core"]
