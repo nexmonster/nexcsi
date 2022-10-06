@@ -85,20 +85,11 @@ def __find_nsamples_max(pcap_filesize, nsub):
     return nsamples_max
 
 
-def unpack(csi, device, fftshift=True):
-    unpacked = csi.astype(np.float32).view(np.complex64)
-
-    if fftshift:
-        unpacked = np.fft.fftshift(unpacked, axes=(1,))
-
-    return unpacked
-
-
 def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
     """
     Reads CSI samples from
-    a pcap file. A SampleSet
-    object is returned.
+    a pcap file. A Numpy
+    Structured Array is returned.
 
     Bandwidth and maximum samples
     are inferred from the pcap file by
@@ -180,3 +171,24 @@ def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
     )  # ~ 1.8 s
 
     return samples
+
+
+def unpack(csi, device, fftshift=True):
+    """
+    Convert CSI samples from raw,
+    in-packet format to Complex64s
+    that you can do Math with.
+
+    Device should be either
+    raspberry or nexus5.
+
+    Set fftshift to False for some
+    speedup if you don't care about the
+    order of subcarriers.
+    """
+    unpacked = csi.astype(np.float32).view(np.complex64)
+
+    if fftshift:
+        unpacked = np.fft.fftshift(unpacked, axes=(1,))
+
+    return unpacked
