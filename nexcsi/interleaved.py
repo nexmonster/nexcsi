@@ -128,6 +128,8 @@ def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
     # Numpy dtype for sample: https://numpy.org/doc/stable/reference/arrays.dtypes.html
     dtype_sample = np.dtype(
         [
+            ("ts_sec", np.uint32),
+            ("ts_usec", np.uint32),
             ("magic", np.uint16),
             ("rssi", np.int8),
             ("fctl", np.uint8),
@@ -156,16 +158,17 @@ def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
 
     nsamples = 0
     while ptr < pcap_filesize:
-        # Read frame header
-        # Skip over Eth, IP, UDP
-        ptr += 8
-        frame_len = int.from_bytes(  # ~ 3 s
-            fc[ptr : ptr + 4], byteorder="little", signed=False
-        )
-        ptr += 50
+        # Read Timestamps
+        data[data_index: data_index + 8] = fc[ptr: ptr + 8]
 
-        data[data_index : data_index + nbytes_sample] = fc[
-            ptr : ptr + nbytes_sample
+        frame_len = int.from_bytes(  # ~ 3 s
+            fc[ptr + 8: ptr + 12], byteorder="little", signed=False
+        )
+
+        ptr += 58 # Skip over Header, Eth, IP, UDP
+
+        data[data_index + 8: data_index + nbytes_sample] = fc[
+            ptr: ptr + nbytes_sample - 8
         ]  # ~ 5.2 s
 
         nsamples += 1
