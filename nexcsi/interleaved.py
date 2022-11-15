@@ -24,7 +24,7 @@ can also be explicitly set:
 samples = interleaved.read_pcap('path_to_pcap_file', bandwidth=40)
 """
 
-__all__ = ["read_pcap"]
+__all__ = ["read_pcap", "unpack"]
 
 import os
 import numpy as np
@@ -119,8 +119,12 @@ def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
     # Numpy dtype for sample: https://numpy.org/doc/stable/reference/arrays.dtypes.html
     dtype_sample = np.dtype(
         [
-            ("ts_sec", np.uint32),
+            ("ts_sec",  np.uint32),
             ("ts_usec", np.uint32),
+            ("saddr", np.dtype(np.uint32).newbyteorder('>')),
+            ("daddr", np.dtype(np.uint32).newbyteorder('>')),
+            ("sport", np.dtype(np.uint16).newbyteorder('>')),
+            ("dport", np.dtype(np.uint16).newbyteorder('>')),
             ("magic", np.uint16),
             ("rssi", np.int8),
             ("fctl", np.uint8),
@@ -149,17 +153,21 @@ def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
 
     nsamples = 0
     while ptr < pcap_filesize:
-        # Read Timestamps
-        data[data_index: data_index + 8] = fc[ptr: ptr + 8]
 
         frame_len = int.from_bytes(  # ~ 3 s
             fc[ptr + 8: ptr + 12], byteorder="little", signed=False
         )
 
-        ptr += 58 # Skip over Header, Eth, IP, UDP
+        # Read Timestamps
+        data[data_index: data_index + 8] = fc[ptr: ptr + 8]
 
-        data[data_index + 8: data_index + nbytes_sample] = fc[
-            ptr: ptr + nbytes_sample - 8
+        # Read saddr, daddr, sport, dport
+        data[data_index + 8: data_index + 20] = fc[ptr + 42: ptr + 54]
+
+        ptr += 58  # Skip over Header, Eth, IP, UDP
+
+        data[data_index + 20: data_index + nbytes_sample] = fc[
+            ptr: ptr + nbytes_sample - 20
         ]  # ~ 5.2 s
 
         nsamples += 1

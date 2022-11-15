@@ -23,6 +23,8 @@ print(samples['csi'])  # [[ 19489  0  -19200  -96 -42 ...
 print(samples.dtype)
 
 # [
+#     ('ts_sec', '<u4'), ('ts_usec', '<u4'), ('saddr', '>u4'), 
+#     ('daddr', '>u4'), ('sport', '>u2'), ('dport', '>u2'),
 #     ('magic', '<u2'), ('rssi', 'i1'), ('fctl', 'u1'),
 #     ('mac', 'u1', (6,)), ('seq', '<u2'), ('css', '<u2'),
 #     ('csp', '<u2'), ('cvr', '<u2'), ('csi', '<i2', (512,))
