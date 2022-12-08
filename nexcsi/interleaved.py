@@ -29,6 +29,7 @@ __all__ = ["read_pcap", "unpack"]
 import os
 import numpy as np
 
+from nexcsi import nulls, pilots
 
 def __find_bandwidth(incl_len):
     """
@@ -84,7 +85,6 @@ def __find_nsamples_max(pcap_filesize, nsub):
 
     return nsamples_max
 
-
 def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
     """
     Reads CSI samples from
@@ -134,7 +134,15 @@ def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
             ("csp", np.uint16),
             ("cvr", np.uint16),
             ("csi", np.int16, nsub * 2),
-        ]
+        ],
+        # This wont be preserved during all array operations.
+        # Be very cautious if you're accessing these values
+        metadata={
+            'bandwidth': bandwidth,
+            'pcap_filepath': pcap_filepath,
+            'nulls': nulls[bandwidth],
+            'pilots': pilots[bandwidth],
+        }
     )
 
     # Number of bytes in a sample
@@ -181,7 +189,7 @@ def read_pcap(pcap_filepath, bandwidth=None, nsamples_max=None):
     return samples
 
 
-def unpack(csi, device, fftshift=True):
+def unpack(csi, device, fftshift=True, zero_nulls=False, zero_pilots=False):
     """
     Convert CSI samples from raw,
     in-packet format to Complex64s
@@ -196,7 +204,42 @@ def unpack(csi, device, fftshift=True):
     """
     unpacked = csi.astype(np.float32).view(np.complex64)
 
+    if unpacked.shape[1] == 64:
+        bandwidth = 20
+    elif unpacked.shape[1] == 128:
+        bandwidth = 40
+    elif unpacked.shape[1] == 256:
+        bandwidth = 80
+    elif unpacked.shape[1] == 512:
+        bandwidth = 160
+    else:
+        raise ValueError("Couldn't determine bandwidth. Is the packet corrupt? " +
+            "Please create a new Issue: https://github.com/nexmonster/nexcsi/issues")
+    
+    if (zero_nulls or zero_pilots) and not fftshift:
+        import warnings
+        warnings.warn("FFTshift is automatically enabled when dropping pilots or nulls. Set fftshift to True to silence this warning.")
+        fftshift = True
+
     if fftshift:
         unpacked = np.fft.fftshift(unpacked, axes=(1,))
 
-    return unpacked
+    if zero_nulls:
+        unpacked[nulls[bandwidth]] = 0
+    
+    if zero_pilots:
+        unpacked[pilots[bandwidth]] = 0
+
+    # This wont be preserved during all array operations.
+    # Be very cautious if you're accessing these values
+    dt = np.dtype(unpacked.dtype, metadata={
+        'device': device,
+        'nulls': nulls[bandwidth],
+        'pilots': pilots[bandwidth],
+        'bandwidth': bandwidth,
+        'fftshift': fftshift,
+        'zero_nulls': zero_pilots,
+        'zero_pilots': zero_nulls,
+    })
+
+    return unpacked.astype(dt)

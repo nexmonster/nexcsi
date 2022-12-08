@@ -33,3 +33,24 @@ print(samples.dtype)
 # Accessing CSI as type complex64
 csi = decoder(device).unpack(samples['csi'])
 ```
+
+### Null and Pilot subcarriers
+
+CSI values of some subcarriers contain large and arbitrary values.
+Removing or zeroing them can make the changes in CSI better visible.
+
+To zero the values of Null and Pilot subcarriers:
+
+``` python
+csi = decoder(device).unpack(samples['csi'], zero_nulls=True, zero_pilots=True)
+```
+
+Alternatively you can completely delete the columns of those subcarriers.
+Although I don't recommend this, because it changes the indexes of other subcarriers.
+
+``` python
+import numpy as np
+
+csi = np.delete(csi, csi.dtype.metadata['nulls'], axis=1)
+csi = np.delete(csi, csi.dtype.metadata['pilots'], axis=1)
+```
