@@ -225,10 +225,10 @@ def unpack(csi, device, fftshift=True, zero_nulls=False, zero_pilots=False):
         unpacked = np.fft.fftshift(unpacked, axes=(1,))
 
     if zero_nulls:
-        unpacked[nulls[bandwidth]] = 0
+        unpacked[:, nulls[bandwidth]] = 0
     
     if zero_pilots:
-        unpacked[pilots[bandwidth]] = 0
+        unpacked[:, pilots[bandwidth]] = 0
 
     # This wont be preserved during all array operations.
     # Be very cautious if you're accessing these values
