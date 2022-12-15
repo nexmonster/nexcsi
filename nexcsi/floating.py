@@ -257,6 +257,7 @@ def unpack(csi, device, fftshift=True, zero_nulls=False, zero_pilots=False):
     unpacked = np.stack((value_i, value_q), axis=1).flatten().astype(np.float32).view(np.complex64)
 
     unpacked = unpacked.reshape(csi.shape)
+    unpacked = np.asmatrix(unpacked)
 
     if unpacked.shape[1] == 64:
         bandwidth = 20

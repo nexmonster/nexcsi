@@ -204,6 +204,8 @@ def unpack(csi, device, fftshift=True, zero_nulls=False, zero_pilots=False):
     """
     unpacked = csi.astype(np.float32).view(np.complex64)
 
+    unpacked = np.asmatrix(unpacked)
+
     if unpacked.shape[1] == 64:
         bandwidth = 20
     elif unpacked.shape[1] == 128:
